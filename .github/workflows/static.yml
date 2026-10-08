@@ -48,14 +48,14 @@ jobs:
             | sudo tee /etc/apt/sources.list.d/zabbly-incus-stable.sources >/dev/null
           sudo apt-get update
           sudo apt-get install -y incus
-          sudo incus admin init --minimal
+          # -H: sudo keeps HOME on the runner, and Incus 7 would otherwise leave a
+          # root-owned ~/.config/incus that the runner user cannot read.
+          sudo -H incus admin init --minimal
           sudo usermod -aG incus-admin "$USER"
           # Docker on the runner sets the FORWARD policy to DROP, which cuts the
           # container off from the internet (plugins come from wordpress.org).
           sudo iptables -P FORWARD ACCEPT
-          # For diagnosing mount failures: idmapped mounts must be supported. Run
-          # as the runner user: a client command under sudo would leave a
-          # root-owned ~/.config/incus behind.
+          # For diagnosing mount failures: idmapped mounts must be supported.
           uname -r
           sg incus-admin -c "incus info" | grep -iE 'idmap|shift|kernel_version' || true
 
