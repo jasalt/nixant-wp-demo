@@ -7,8 +7,8 @@
         ]
       },
       "locked": {
-        "lastModified": 1791474355,
-        "narHash": "sha256-poxi2SHeK0j2l62kobwB7N7HExyf9D3c0V840mB8D4c=",
+        "lastModified": 1791477900,
+        "narHash": "sha256-+FgtAlL2EO76aBHRN5s1xoA0OgAByDRbw8JPBPc/HDs=",
         "path": "/home/user/dev/jail/nixant",
         "type": "path"
       },
@@ -26,8 +26,8 @@
         ]
       },
       "locked": {
-        "lastModified": 1791474161,
-        "narHash": "sha256-M1LnVkIr2dbqRNYjDz6Bvd3YKhiz8TzGEBgYd31Qxpk=",
+        "lastModified": 1791478648,
+        "narHash": "sha256-fciluEm/+zW7MTW6MrnMah1hRPOFnaVo9ajscS6CkBY=",
         "path": "/home/user/dev/jail/nixant-wp",
         "type": "path"
       },

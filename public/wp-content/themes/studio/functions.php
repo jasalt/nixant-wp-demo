@@ -15,6 +15,9 @@ add_action(
 	}
 );
 
+// No XML-RPC endpoint to discover on the static export (bin/export-static.sh).
+remove_action( 'wp_head', 'rsd_link' );
+
 add_action(
 	'wp_enqueue_scripts',
 	function (): void {

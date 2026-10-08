@@ -10,3 +10,6 @@
 /public/wp-content/themes/*
 !/public/wp-content/plugins/studio-site/
 !/public/wp-content/themes/studio/
+
+# Static export, published to the `static` branch by bin/export-static.sh.
+/.static-build/
