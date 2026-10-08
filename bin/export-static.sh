@@ -4,7 +4,8 @@
 #   bin/export-static.sh [https://<user>.github.io/<repo>]
 # Links are rewritten to the given URL. The working tree and the current branch
 # are not touched; push with `git push origin static`. Set NIXANT to the nixant
-# command when it is not on PATH, STATIC_BRANCH for another branch name.
+# command when it is not on PATH, STATIC_BRANCH for another branch name, and
+# STATIC_SOURCE to describe the source in the commit message (CI does).
 set -euo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
@@ -68,8 +69,10 @@ if [ -n "$parent" ] && [ "$(git rev-parse "$parent^{tree}")" = "$tree" ]; then
   echo "export-static: $branch is up to date"
   exit 0
 fi
-source=$(git rev-parse --short HEAD)
-git diff --quiet HEAD -- || source="$source with uncommitted changes"
+source=${STATIC_SOURCE:-$(git rev-parse --short HEAD)}
+if [ -z "${STATIC_SOURCE:-}" ] && ! git diff --quiet HEAD --; then
+  source="$source with uncommitted changes"
+fi
 commit=$(git commit-tree "$tree" ${parent:+-p "$parent"} -m "Static export of $source for $url")
 git update-ref "refs/heads/$branch" "$commit" ${parent:+"$parent"}
 echo "export-static: committed $(git ls-tree -r --name-only "$commit" | wc -l) files to $branch ($(git rev-parse --short "$commit")); push with: git push origin $branch"

@@ -5,6 +5,8 @@
     nixant.inputs.nixpkgs.follows = "nixpkgs";
     nixant-wp.url = "github:jasalt/nixant-wp";
     nixant-wp.inputs.nixpkgs.follows = "nixpkgs";
+    # One nixant for the guest and nixant-wp (whose own nixant input is test-only).
+    nixant-wp.inputs.nixant.follows = "nixant";
   };
 
   outputs = { nixpkgs, nixant, nixant-wp, ... }: {

@@ -7,10 +7,12 @@
         ]
       },
       "locked": {
-        "lastModified": 1791477900,
-        "narHash": "sha256-+FgtAlL2EO76aBHRN5s1xoA0OgAByDRbw8JPBPc/HDs=",
-        "path": "/home/user/dev/jail/nixant",
-        "type": "path"
+        "lastModified": 1791474896,
+        "narHash": "sha256-oBnpFLmwq1oF+daX7UtsoQb8KeQg1gva+Fh2gfZZwvs=",
+        "owner": "jasalt",
+        "repo": "nixant-py",
+        "rev": "ea0d934fd0c68a9110ee27138ed0abc5b1670990",
+        "type": "github"
       },
       "original": {
         "owner": "jasalt",
@@ -20,42 +22,25 @@
     },
     "nixant-wp": {
       "inputs": {
-        "nixant": "nixant_2",
+        "nixant": [
+          "nixant"
+        ],
         "nixpkgs": [
           "nixpkgs"
         ]
       },
       "locked": {
-        "lastModified": 1791478648,
-        "narHash": "sha256-fciluEm/+zW7MTW6MrnMah1hRPOFnaVo9ajscS6CkBY=",
-        "path": "/home/user/dev/jail/nixant-wp",
-        "type": "path"
+        "lastModified": 1791483481,
+        "narHash": "sha256-JPTsWcOXpCJANGFEqhB45HixpIQju8Z39ZiI3cdMIFc=",
+        "owner": "jasalt",
+        "repo": "nixant-wp",
+        "rev": "b12190523e3e35bbef111216a87d9ab30ce54bbc",
+        "type": "github"
       },
       "original": {
         "owner": "jasalt",
         "repo": "nixant-wp",
         "type": "github"
-      }
-    },
-    "nixant_2": {
-      "inputs": {
-        "nixpkgs": [
-          "nixant-wp",
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1791447423,
-        "narHash": "sha256-W0+qI9iVnsLrbwF6a9oS8lf0xchN0oIRgIsVucFKbkI=",
-        "ref": "refs/heads/master",
-        "rev": "4c1d6e816a0ba50feced5fd6fc690605575e31e9",
-        "revCount": 83,
-        "type": "git",
-        "url": "file:///home/user/dev/jail/nixant"
-      },
-      "original": {
-        "type": "git",
-        "url": "file:///home/user/dev/jail/nixant"
       }
     },
     "nixpkgs": {

@@ -1,0 +1,80 @@
+# Build the static site and publish it to the root of the `static` branch, for
+# GitHub Pages ("Deploy from a branch": static, / (root)).
+#
+# The runner does what you do locally: nixant up, bin/provision.sh and
+# bin/export-static.sh, in an Incus container on the runner. Needs flake.lock to
+# point nixant and nixant-wp at their GitHub repositories, not local paths.
+name: Static site
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: static-site
+  cancel-in-progress: false
+
+env:
+  # Links in the export point here. Set the PAGES_URL repository variable for a
+  # custom domain; the default is the repository's project site.
+  PAGES_URL: ${{ vars.PAGES_URL || format('https://{0}.github.io/{1}', github.repository_owner, github.event.repository.name) }}
+
+jobs:
+  static:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: experimental-features = nix-command flakes
+
+      - name: Set up Incus
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y incus
+          sudo incus admin init --minimal
+          sudo usermod -aG incus-admin "$USER"
+          # Docker on the runner sets the FORWARD policy to DROP, which cuts the
+          # container off from the internet (plugins come from wordpress.org).
+          sudo iptables -P FORWARD ACCEPT
+
+      - name: Match the guest user's UID to the runner's
+        # nix/site.nix sets nixant.user.uid = 1000, the developer's host UID.
+        # nixant maps the host UID onto the guest user in the workspace mount, so
+        # the two must be equal for the guest to write public/. The runner user
+        # is not 1000 (it is 1001 on GitHub-hosted runners), so set its UID here.
+        # The change exists only in this job's checkout and is never committed;
+        # STATIC_SOURCE below keeps it out of the export's commit message.
+        run: |
+          sed -i "s/user.uid = 1000;/user.uid = $(id -u);/" nix/site.nix
+          grep -q "user.uid = $(id -u);" nix/site.nix
+
+      - name: Build nixant at the version in flake.lock
+        run: echo "NIXANT=$(nix build --no-link --print-out-paths --inputs-from . nixant)/bin/nixant" >> "$GITHUB_ENV"
+
+      # The incus-admin group from `usermod` applies to new sessions only, so
+      # each step that talks to Incus runs under `sg incus-admin`.
+      - name: nixant up
+        run: sg incus-admin -c "$NIXANT up"
+
+      - name: Provision plugins, theme and content
+        run: sg incus-admin -c "bin/provision.sh && $NIXANT exec -- wp-site check"
+
+      - name: Export to the static branch
+        env:
+          STATIC_SOURCE: ${{ github.sha }} (CI run ${{ github.run_id }})
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Continue the branch's history; the first run creates it.
+          git fetch origin static:static || true
+          sg incus-admin -c "bin/export-static.sh $PAGES_URL"
+
+      - name: Push
+        run: git push origin static
