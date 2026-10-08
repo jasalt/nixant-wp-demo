@@ -46,18 +46,25 @@ jobs:
             "Suites: $(. /etc/os-release && echo "$VERSION_CODENAME")" 'Components: main' \
             "Architectures: $(dpkg --print-architecture)" 'Signed-By: /etc/apt/keyrings/zabbly.asc' \
             | sudo tee /etc/apt/sources.list.d/zabbly-incus-stable.sources >/dev/null
+          owner() { echo "== $1: $(sudo stat -c '%U:%G %a' "$HOME/.config" "$HOME/.config/incus" "$HOME/.config/incus/config.yml" 2>&1 | paste -sd' ')"; }
+          owner "before install"
           sudo apt-get update
           sudo apt-get install -y incus
-          # -H: sudo keeps HOME on the runner, and Incus 7 would otherwise leave a
-          # root-owned ~/.config/incus that the runner user cannot read.
+          owner "after install"
           sudo -H incus admin init --minimal
+          owner "after admin init"
           sudo usermod -aG incus-admin "$USER"
           # Docker on the runner sets the FORWARD policy to DROP, which cuts the
           # container off from the internet (plugins come from wordpress.org).
           sudo iptables -P FORWARD ACCEPT
+          # Something above leaves a root-owned ~/.config/incus with Incus 7,
+          # which the runner user cannot read. It holds only client settings;
+          # the runner user's first incus command recreates it.
+          sudo rm -rf "$HOME/.config/incus"
           # For diagnosing mount failures: idmapped mounts must be supported.
           uname -r
           sg incus-admin -c "incus info" | grep -iE 'idmap|shift|kernel_version' || true
+          owner "after incus info as the runner user"
 
       - name: Match the guest user's UID to the runner's
         # nix/site.nix sets nixant.user.uid = 1000, the developer's host UID.
