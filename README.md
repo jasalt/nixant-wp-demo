@@ -1,6 +1,6 @@
 # Studio demo site
 
-A demo WordPress site for a design studio: a custom theme, a Project post type with Secure Custom Fields, and a filterable project archive. It runs in its own Incus container managed by [nixant](../nixant), with the WordPress stack from [nixant-wp](../nixant-wp).
+A demo WordPress site for a design studio: a custom theme, a Project post type with Secure Custom Fields, and a filterable project archive. It runs in its own Incus container managed by [nixant](https://github.com/jasalt/nixant-py), with the WordPress stack from [nixant-wp](https://github.com/jasalt/nixant-wp).
 
 ## Components
 
@@ -20,10 +20,12 @@ Inside the guest: MariaDB (socket auth, no password), PHP-FPM and Caddy running 
 
 ## Provisioning
 
-Needs Linux, Nix with flakes, Incus with your user in `incus-admin`, and your UID equal to `nixant.user.uid` in `nix/site.nix` (`id -u`). The commands use `nixant`; without it installed, use `nix run path:../nixant --` instead (slower: it re-evaluates for every call).
+Needs Linux, Nix with flakes, Incus with your user in `incus-admin`, and your UID equal to `nixant.user.uid` in `nix/site.nix` (`id -u`). The commands use `nixant`; without it installed, use `nix run github:jasalt/nixant-py --` instead (slower: it re-evaluates for every call).
 
 ```console
-# 1. Lock the inputs. nixant and nixant-wp are not published, so point them at local checkouts.
+# 1. Lock nixant and nixant-wp to their published repositories.
+$ nix flake update nixant nixant-wp
+#    Or, to work on them, point them at local checkouts instead:
 $ nix flake lock --override-input nixant path:../nixant --override-input nixant-wp path:../nixant-wp
 
 # 2. Create the container and the WordPress site (core into public/, database, admin user).
