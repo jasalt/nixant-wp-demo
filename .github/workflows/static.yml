@@ -35,7 +35,17 @@ jobs:
           extra_nix_config: experimental-features = nix-command flakes
 
       - name: Set up Incus
+        # From upstream's Zabbly packages: Ubuntu's own Incus 6.0.0 reports no
+        # idmapped-mount support on the runner, which nixant's workspace mount
+        # (shift=true) needs.
         run: |
+          sudo mkdir -p /etc/apt/keyrings
+          sudo curl -fsSL https://pkgs.zabbly.com/key.asc -o /etc/apt/keyrings/zabbly.asc
+          printf '%s\n' \
+            'Enabled: yes' 'Types: deb' 'URIs: https://pkgs.zabbly.com/incus/stable' \
+            "Suites: $(. /etc/os-release && echo "$VERSION_CODENAME")" 'Components: main' \
+            "Architectures: $(dpkg --print-architecture)" 'Signed-By: /etc/apt/keyrings/zabbly.asc' \
+            | sudo tee /etc/apt/sources.list.d/zabbly-incus-stable.sources >/dev/null
           sudo apt-get update
           sudo apt-get install -y incus
           sudo incus admin init --minimal
@@ -43,6 +53,9 @@ jobs:
           # Docker on the runner sets the FORWARD policy to DROP, which cuts the
           # container off from the internet (plugins come from wordpress.org).
           sudo iptables -P FORWARD ACCEPT
+          # For diagnosing mount failures: idmapped_mounts must be true.
+          uname -r
+          sudo incus info | sed -n '/kernel_features:/,/^[^ ]/p'
 
       - name: Match the guest user's UID to the runner's
         # nix/site.nix sets nixant.user.uid = 1000, the developer's host UID.
