@@ -53,9 +53,11 @@ jobs:
           # Docker on the runner sets the FORWARD policy to DROP, which cuts the
           # container off from the internet (plugins come from wordpress.org).
           sudo iptables -P FORWARD ACCEPT
-          # For diagnosing mount failures: idmapped_mounts must be true.
+          # For diagnosing mount failures: idmapped mounts must be supported. Run
+          # as the runner user: a client command under sudo would leave a
+          # root-owned ~/.config/incus behind.
           uname -r
-          sudo incus info | sed -n '/kernel_features:/,/^[^ ]/p'
+          sg incus-admin -c "incus info" | grep -iE 'idmap|shift|kernel_version' || true
 
       - name: Match the guest user's UID to the runner's
         # nix/site.nix sets nixant.user.uid = 1000, the developer's host UID.
