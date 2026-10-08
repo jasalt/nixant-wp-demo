@@ -22,8 +22,9 @@ add_action(
 	'wp_enqueue_scripts',
 	function (): void {
 		$css = '/assets/css/main.css';
-		// The file's mtime as version: edits on the host bust the browser cache.
-		wp_enqueue_style( 'studio', get_theme_file_uri( $css ), array(), (string) filemtime( get_theme_file_path( $css ) ) );
+		// A hash of the file as version: edits bust the browser cache, and a
+		// static export only changes when the CSS does (unlike its mtime).
+		wp_enqueue_style( 'studio', get_theme_file_uri( $css ), array(), substr( md5_file( get_theme_file_path( $css ) ), 0, 8 ) );
 	}
 );
 
