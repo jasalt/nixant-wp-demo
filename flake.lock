@@ -7,39 +7,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1791474896,
-        "narHash": "sha256-oBnpFLmwq1oF+daX7UtsoQb8KeQg1gva+Fh2gfZZwvs=",
+        "lastModified": 1791524377,
+        "narHash": "sha256-hCyvJuooaZxVHrnD2bVJ/tf4w+9wmIqDjZ7LE5kBwfI=",
         "owner": "jasalt",
         "repo": "nixant-py",
-        "rev": "ea0d934fd0c68a9110ee27138ed0abc5b1670990",
+        "rev": "3d9cd7c3a7739de3585f042aa6a0ea4f86df6107",
         "type": "github"
       },
       "original": {
         "owner": "jasalt",
         "repo": "nixant-py",
-        "type": "github"
-      }
-    },
-    "nixant-wp": {
-      "inputs": {
-        "nixant": [
-          "nixant"
-        ],
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1791483481,
-        "narHash": "sha256-JPTsWcOXpCJANGFEqhB45HixpIQju8Z39ZiI3cdMIFc=",
-        "owner": "jasalt",
-        "repo": "nixant-wp",
-        "rev": "b12190523e3e35bbef111216a87d9ab30ce54bbc",
-        "type": "github"
-      },
-      "original": {
-        "owner": "jasalt",
-        "repo": "nixant-wp",
         "type": "github"
       }
     },
@@ -62,7 +39,6 @@
     "root": {
       "inputs": {
         "nixant": "nixant",
-        "nixant-wp": "nixant-wp",
         "nixpkgs": "nixpkgs"
       }
     }

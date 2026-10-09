@@ -3,7 +3,7 @@
 #
 # The runner does what you do locally: nixant up, bin/provision.sh and
 # bin/export-static.sh, in an Incus container on the runner. Needs flake.lock to
-# point nixant and nixant-wp at their GitHub repositories, not local paths.
+# point nixant at its GitHub repository, not a local path.
 name: Static site
 
 on:

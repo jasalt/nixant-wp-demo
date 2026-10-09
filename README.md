@@ -1,13 +1,13 @@
 # Studio demo site
 
-A demo WordPress site for a design studio: a custom theme, a Project post type with Secure Custom Fields, and a filterable project archive. It runs in its own Incus container managed by [nixant](https://github.com/jasalt/nixant-py), with the WordPress stack from [nixant-wp](https://github.com/jasalt/nixant-wp).
+A demo WordPress site for a design studio: a custom theme, a Project post type with Secure Custom Fields, and a filterable project archive. It runs in its own Incus container managed by [nixant](https://github.com/jasalt/nixant-py), with the WordPress stack from nixant's [WordPress extension](https://github.com/jasalt/nixant-py/tree/master/extensions/wordpress).
 
 ## Components
 
 | Path | What it is |
 |---|---|
-| `flake.nix` | The nixant project: one NixOS guest (`nixosConfigurations.dev`) built from nixant's container module, nixant-wp's `wordpress` module and `nix/site.nix`. |
-| `flake.lock` | Pins nixpkgs, nixant and nixant-wp (currently local checkouts, see below). |
+| `flake.nix` | The nixant project: one NixOS guest (`nixosConfigurations.dev`) built from nixant's `container` and `wordpress` modules and `nix/site.nix`. |
+| `flake.lock` | Pins nixpkgs and nixant (see below). |
 | `nix/site.nix` | Instance settings: name `wpdemo-dev`, guest user UID, forwarded ports (8081 → site, 8025 → Mailpit), and the `wordpress` block (title, web root `public/`). |
 | `public/` | The whole WordPress installation, shared with the guest at `/workspace/public`. Core, `wp-config.php`, uploads and third-party plugins are created in place and ignored by git. |
 | `public/wp-content/themes/studio/` | The theme (tracked): project archive and service archives (`archive-project.php`, `taxonomy-service.php`), project page (`single-project.php`), card partial and CSS. |
@@ -25,10 +25,10 @@ Inside the guest: MariaDB (socket auth, no password), PHP-FPM and Caddy running 
 Needs Linux, Nix with flakes, Incus with your user in `incus-admin`, and your UID equal to `nixant.user.uid` in `nix/site.nix` (`id -u`). The commands use `nixant`; without it installed, use `nix run github:jasalt/nixant-py --` instead (slower: it re-evaluates for every call).
 
 ```console
-# 1. Lock nixant and nixant-wp to their published repositories.
-$ nix flake update nixant nixant-wp
-#    Or, to work on them, point them at local checkouts instead:
-$ nix flake lock --override-input nixant path:../nixant --override-input nixant-wp path:../nixant-wp
+# 1. Lock nixant to its published repository.
+$ nix flake update nixant
+#    Or, to work on nixant, point it at a local checkout instead:
+$ nix flake lock --override-input nixant path:../nixant
 
 # 2. Create the container and the WordPress site (core into public/, database, admin user).
 $ nixant up
@@ -45,7 +45,7 @@ Then:
 - admin: <http://localhost:8081/wp-admin/> as `admin` / `password` (development only)
 - mail: <http://localhost:8025>
 
-Rerun step 1 after pulling changes to nixant or nixant-wp, then `nixant up`.
+Rerun step 1 after pulling changes to nixant, then `nixant up`.
 
 ## Working on it
 
@@ -72,12 +72,12 @@ The script installs [Simply Static](https://wordpress.org/plugins/simply-static/
 
 `.github/workflows/static.yml` runs the same steps on a GitHub-hosted runner on every push to `master` (or by hand): it installs Nix and Incus, runs `nixant up`, `bin/provision.sh`, `wp-site check` and `bin/export-static.sh`, and pushes `static`. A run takes a few minutes. It needs:
 
-- `flake.lock` pointing at the published nixant and nixant-wp (step 1 above), not at `path:` checkouts;
+- `flake.lock` pointing at the published nixant (step 1 above), not at a `path:` checkout;
 - write access for the workflow (`contents: write`, set in the file; allow it under Settings → Actions → General if the repository restricts it);
 - optionally a `PAGES_URL` repository variable, for a custom domain; the default is `https://<owner>.github.io/<repo>`.
 
 The workflow changes `nixant.user.uid` in its checkout to the runner user's UID (1001, not the 1000 in `nix/site.nix`), because the guest user's UID must equal the host user's for the workspace mount to be writable. The change is never committed. Content in CI comes from the repository only: commit `content/site.sql` (and uploads) for anything beyond the demo content.
 
-The export is plain HTML: anything dynamic (search, comments, forms, login) does not work on Pages. Simply Static fetches the pages over HTTP from the site URL inside the guest; nixant-wp serves the URL's port there for this, and `wp-site check` tests it.
+The export is plain HTML: anything dynamic (search, comments, forms, login) does not work on Pages. Simply Static fetches the pages over HTTP from the site URL inside the guest; nixant's WordPress module serves the URL's port there for this, and `wp-site check` tests it.
 
 Snapshots (`nixant snapshot <name>`) cover the database but not `public/`; export the database next to the files for a consistent copy.
